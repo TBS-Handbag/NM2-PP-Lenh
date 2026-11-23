@@ -1,0 +1,177 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        /* Brand palette (hex), dùng qua class Tailwind: bg-main, text-subText, ... */
+        --main: #00402a;
+        --main-soft: #14563e; /* nền phụ trên header xanh */
+        --main-tint: color-mix(in srgb, var(--main) 10%, white); /* ô icon, badge nhạt */
+        --main-muted: #3d6b58; /* eyebrow */
+        --on-main-sub: #bfd8cc; /* chữ phụ trên nền main */
+        --surface: #f5f5f5; /* nền app: xám trung tính nhẹ */
+        --main-text: #10241c;
+        --sub-text: #5b6b64;
+        --label-text: #33473f;
+        --icon-muted: #7a8c84;
+        --ink: #333333; /* chữ tối trên chip trắng */
+        --line: #d8e4de;
+        --line-soft: #e6eeea;
+        --line-strong: #cbd8d2;
+        --run: var(--main);
+        --run-bg: #dcfce7; /* xanh lá nhạt cùng độ sáng idle-bg/stop-bg; main-tint ngả xám, không đọc ra "đang Hoạt động" */
+        --run-fg: color-mix(in srgb, var(--main) 55%, black); /* main tối lại cho chữ đủ tương phản */
+        --run-light: #4ade80; /* chấm sáng trên nền main */
+        --run-cell: #ffffff;
+        --run-line: #d8e4de;
+        --run-band: #16c45a; /* dải tên máy Hoạt động trên TV */
+        --idle: #ffd60a; /* đang Hoạt động lệnh cuối, Hết lệnh chờ; vàng tách hẳn đỏ khi nhìn xa */
+        --idle-bg: #fef3c7;
+        --idle-fg: #92400e;
+        --idle-cell: #fffbeb;
+        --idle-line: #fcd34d;
+        --idle-on: #1a1300; /* chữ trên nền vàng đặc */
+        --stop: #ef3b3b;
+        --stop-bg: #fee2e2;
+        --stop-fg: #ea1313;
+        --stop-cell: #ffdede;
+        --stop-line: #fca5a5;
+        --stop-on: #ffffff; /* chữ trên nền đỏ đặc */
+        --zone: #e530e8; /* khung nhóm máy trên TV (máy 13–18) */
+        --zone-bg: #0c1b25;
+        --zone-on: #04202e; /* chữ trên nhãn khung */
+        --sub0: #3c3454;
+        --sub1: #e8e5f5;
+        --sub2: #8b84b8;
+        --sub3: #f5b841;
+        /* biểu đồ /dashboard (nền TV tối): nhóm máy là dải xanh chanh → ngọc → cyan tươi, số liệu tổng màu ấm */
+        --dash-1: #a3e635; /* Chặt thủy lực: xanh chanh */
+        --dash-2: #34d399; /* Trải: xanh ngọc */
+        --dash-3: #22d3ee; /* Bullmer: xanh cyan */
+        --dash-4: #818cf8; /* nhóm dự phòng */
+        --dash-total: #fbbf24; /* số liệu tổng: hổ phách ấm, tương phản với các nhóm xanh */
+        --dash-accent: #9333ea; /* chip khoảng ngày: tím, đủ tương phản với chữ trắng */
+
+        /* shadcn tokens map về brand */
+        --background: #ffffff;
+        --foreground: var(--main-text);
+        --card: #ffffff;
+        --card-foreground: var(--main-text);
+        --popover: #ffffff;
+        --popover-foreground: var(--main-text);
+        --primary: var(--main);
+        --primary-foreground: #ffffff;
+        --secondary: var(--main-tint);
+        --secondary-foreground: var(--main);
+        --muted: var(--surface);
+        --muted-foreground: var(--sub-text);
+        --accent: var(--main-tint);
+        --accent-foreground: var(--main);
+        --destructive: #b42318;
+        --destructive-foreground: #ffffff;
+        --border: var(--line);
+        --input: #b9c9c1;
+        --ring: var(--main);
+        --chart-1: #e76e50;
+        --chart-2: #2a9d90;
+        --chart-3: #274754;
+        --chart-4: #e8c468;
+        --chart-5: #f4a462;
+        --radius: 0.5rem;
+    }
+    .dark {
+        --background: #0a0a0a;
+        --foreground: #fafafa;
+        --card: #0a0a0a;
+        --card-foreground: #fafafa;
+        --popover: #0a0a0a;
+        --popover-foreground: #fafafa;
+        --primary: #fafafa;
+        --primary-foreground: #171717;
+        --secondary: #262626;
+        --secondary-foreground: #fafafa;
+        --muted: #262626;
+        --muted-foreground: #a3a3a3;
+        --accent: #262626;
+        --accent-foreground: #fafafa;
+        --destructive: #7f1d1d;
+        --destructive-foreground: #fafafa;
+        --border: #262626;
+        --input: #262626;
+        --ring: #d4d4d4;
+        --chart-1: #2662d9;
+        --chart-2: #2eb88a;
+        --chart-3: #e88c30;
+        --chart-4: #af57db;
+        --chart-5: #e23670;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+    /* giữ chỗ scrollbar cố định: mở Dialog (Radix khoá scroll) không làm trang/header nhảy */
+    html {
+        scrollbar-gutter: stable;
+    }
+    /* khoá scroll ngay trên html: gutter chỉ được giữ khi chính html overflow hidden (overflow truyền từ body thì mất gutter) */
+    html:has(body[data-scroll-locked]) {
+        overflow: hidden;
+    }
+    /* gutter đã giữ chỗ nên bỏ margin bù scrollbar của react-remove-scroll-bar; thêm `html` để thắng style nó inject sau */
+    html body[data-scroll-locked] {
+        margin-right: 0 !important;
+    }
+    body {
+        @apply bg-surface text-foreground;
+    }
+}
+
+@layer utilities {
+    /* vùng vuốt ngang trên mobile: vẫn cuộn được nhưng không hiện thanh cuộn */
+    .scrollbar-none {
+        scrollbar-width: none;
+    }
+    .scrollbar-none::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+/* Màn hình TV: font gốc co theo viewport (16px ở 1920×1080 và 1920×1200) để mọi rem của Tailwind scale theo, không cuộn */
+html:has(.tv-screen) {
+    font-size: min(0.8333vw, 1.4815vh);
+    overflow: hidden;
+    scrollbar-gutter: auto;
+}
+
+/* TV: nền than trung tính để màu trạng thái nổi lên; thân ô sáng hơn panel, chữ sáng cho nhìn xa. Chỉ đổi token trong .tv-screen, mobile giữ nguyên */
+.tv-screen {
+    --surface: #0b111e;
+    --card: #0f172a; /* header + panel khu vực */
+    --line: #2f3237;
+    --line-strong: #5e636e;
+    --main-text: #ffffff;
+    --label-text: #e1e6eb;
+    --sub-text: #b2bac4;
+    --icon-muted: #929aa4;
+    --run: var(--main); /* viền header */
+    --run-bg: color-mix(in srgb, var(--main) 55%, black); /* dải tên máy Hoạt động, chữ trắng */
+    --run-fg: #ffffff;
+    --run-cell: #22262b; /* thân ô sáng hơn panel */
+    --run-line: var(--main);
+    --idle-bg: #413a10;
+    --idle-fg: #fde047;
+    --idle-cell: #2d2815;
+    --idle-line: #ffd60a;
+    --stop-bg: #451717;
+    --stop-fg: #fca5a5;
+    --stop-cell: #321515;
+    --stop-line: #f87171;
+}
+
+/* bản Next dùng next/font; ở đây font nạp từ Google Fonts trong index.html */
+:root {
+    --font-roboto: "Roboto";
+}
