@@ -33,7 +33,7 @@ export function App() {
                     </p>
                 ) : (
                     <div role="status" className="flex flex-col items-center gap-6">
-                        <LuLoaderCircle aria-hidden="true" className="size-24 text-run-light animate-spin" />
+                        <LuLoaderCircle aria-hidden="true" className="size-24 text-run-light motion-safe:animate-spin" />
                         <span className="sr-only">Đang tải dữ liệu</span>
                     </div>
                 )}
