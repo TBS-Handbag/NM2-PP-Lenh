@@ -7,20 +7,45 @@ import { CUT_GROUPS, type Machine, getMachines, machinesByArea, stat } from './d
 import { cn } from './utils';
 
 const REFRESH_MS = 120_000;
+const RETRY_MS = 10_000;
 
 export function App() {
     const [machines, setMachines] = useState<Machine[] | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const load = () =>
+        let alive = true;
+        let loaded = false;
+        // chặn interval tick chồng lên request đang chạy, tránh đẻ thêm chuỗi retry
+        let inflight = false;
+        let retry: ReturnType<typeof setTimeout> | undefined;
+        const load = () => {
+            if (inflight) return;
+            inflight = true;
+            clearTimeout(retry);
             getMachines()
-                .then((m) => (setMachines(m), setError(null)))
+                .then((m) => {
+                    if (!alive) return;
+                    loaded = true;
+                    setMachines(m);
+                    setError(null);
+                })
                 // lỗi mạng tạm thời: giữ dữ liệu cũ trên TV, chỉ hiện lỗi khi chưa có gì
-                .catch((e: Error) => setError(e.message));
+                .catch((e: Error) => {
+                    if (!alive) return;
+                    setError(e.message);
+                    // chưa có dữ liệu thì thử lại nhanh, khỏi đứng màn lỗi tới lượt interval
+                    if (!loaded) retry = setTimeout(load, RETRY_MS);
+                })
+                .finally(() => (inflight = false));
+        };
         load();
         const t = setInterval(load, REFRESH_MS);
-        return () => clearInterval(t);
+        return () => {
+            alive = false;
+            clearInterval(t);
+            clearTimeout(retry);
+        };
     }, []);
 
     if (!machines)
@@ -28,9 +53,10 @@ export function App() {
             // cùng nền tối .tv-screen với bảng để không nháy trắng lúc tải
             <main className="fixed inset-0 flex flex-col justify-center items-center gap-6 bg-surface text-mainText tv-screen">
                 {error ? (
-                    <p role="alert" className="font-bold text-stop-fg text-2xl">
-                        {error}
-                    </p>
+                    <div role="alert" className="flex flex-col items-center gap-3">
+                        <p className="font-bold text-stop-fg text-2xl">{error}</p>
+                        <p className="text-xl">Tự thử lại sau {RETRY_MS / 1000} giây…</p>
+                    </div>
                 ) : (
                     <div role="status" className="flex flex-col items-center gap-6">
                         <LuLoaderCircle aria-hidden="true" className="size-24 text-run-light motion-safe:animate-spin" />

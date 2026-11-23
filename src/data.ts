@@ -76,7 +76,8 @@ export function parseCsv(text: string): string[][] {
 
 async function readTab(tab: keyof typeof GID) {
     const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID[tab]}`;
-    const res = await fetch(url, { cache: 'no-store' });
+    // timeout để request treo không kẹt cờ inflight ở App, chặn mọi lần refresh sau
+    const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(30_000) });
     if (!res.ok) throw new Error(`Không đọc được tab "${tab}" (${res.status})`);
     // sheet bị tắt share công khai thì Google trả trang login HTML với status 200
     if (!res.headers.get('content-type')?.includes('text/csv'))
