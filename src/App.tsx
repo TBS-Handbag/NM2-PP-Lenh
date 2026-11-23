@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { LuLoaderCircle } from 'react-icons/lu';
 import { AreaPanel } from './components/area-panel';
 import { MachineTile } from './components/machine-tile';
 import { TvClock } from './components/tv-clock';
@@ -24,9 +25,19 @@ export function App() {
 
     if (!machines)
         return (
-            <p role={error ? 'alert' : 'status'} className="p-8 text-subText text-base text-center">
-                {error ?? 'Đang tải dữ liệu…'}
-            </p>
+            // cùng nền tối .tv-screen với bảng để không nháy trắng lúc tải
+            <main className="fixed inset-0 flex flex-col justify-center items-center gap-6 bg-surface text-mainText tv-screen">
+                {error ? (
+                    <p role="alert" className="font-bold text-stop-fg text-2xl">
+                        {error}
+                    </p>
+                ) : (
+                    <div role="status" className="flex flex-col items-center gap-6">
+                        <LuLoaderCircle aria-hidden="true" className="size-24 text-run-light animate-spin" />
+                        <span className="sr-only">Đang tải dữ liệu</span>
+                    </div>
+                )}
+            </main>
         );
     return <TvBoard machines={machines} error={error} />;
 }
